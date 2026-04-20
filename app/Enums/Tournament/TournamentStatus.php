@@ -6,9 +6,10 @@ namespace App\Enums\Tournament;
 
 enum TournamentStatus: string
 {
-    case SCHEDULED = 'scheduled';
-    case LIVE = 'live';
+    case DRAFT     = 'draft';
+    case ONGOING   = 'ongoing';
     case COMPLETED = 'completed';
+    case CANCELLED = 'cancelled';
 
     public function label(): string
     {

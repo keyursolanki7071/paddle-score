@@ -1,97 +1,133 @@
 import * as React from 'react';
 import AppLayout from '@/layouts/AppLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Trophy, Users, Calendar, ArrowUpRight, Zap } from 'lucide-react';
 import { Link } from '@inertiajs/react';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Trophy, Zap, Lightning, Users, Activity, CalendarClock } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-interface DashboardProps {
-
-    stats: {
-        activeTournaments: number;
-        upcomingMatches: number;
-        totalPlayers: number;
-    };
+interface UpcomingMatch {
+    id: string;
+    team_a: string;
+    team_b: string;
+    tournament: string;
+    scheduled_at: string | null;
+    sport: string;
 }
 
-export default function Dashboard({ stats }: DashboardProps) {
+interface DashboardProps {
+    activeTournaments: number;
+    liveMatches: number;
+    totalPlayers: number;
+    upcomingMatches: UpcomingMatch[];
+}
+
+export default function Dashboard({ activeTournaments, liveMatches, totalPlayers, upcomingMatches }: DashboardProps) {
+    const isArenaActive = liveMatches > 0;
+
     return (
         <AppLayout title="Arena Dashboard">
-            <div className="grid gap-4 p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                {/* Hero / Quick Action */}
-                <Card className="bg-primary/5 border-primary/20 overflow-hidden relative">
-                    <div className="absolute top-0 right-0 p-2 opacity-10">
-                        <Zap className="h-24 w-24 text-primary" />
-                    </div>
-                    <CardHeader>
-                        <CardTitle className="text-primary text-2xl">Pro-Circuit Active</CardTitle>
-                        <p className="text-zinc-400 text-sm">You have 2 finals scheduled for tonight.</p>
-                    </CardHeader>
-                    <CardContent>
-                        <Button className="w-full" variant="primary">
-                            Quick Start Scoring
-                        </Button>
-                    </CardContent>
-                </Card>
+            <div className="p-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                    <Card className="bg-surface-container border-white/5">
-                        <CardContent className="p-4 flex flex-col items-center text-center">
-                            <Trophy className="h-5 w-5 text-tertiary mb-2" />
-                            <div className="text-2xl font-display">{stats.activeTournaments}</div>
-                            <div className="text-[10px] uppercase tracking-tighter text-zinc-500">Active Events</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-surface-container border-white/5">
-                        <CardContent className="p-4 flex flex-col items-center text-center">
-                            <Users className="h-5 w-5 text-secondary mb-2" />
-                            <div className="text-2xl font-display">{stats.totalPlayers}</div>
-                            <div className="text-[10px] uppercase tracking-tighter text-zinc-500">Players Registered</div>
-                        </CardContent>
-                    </Card>
+                {/* Hero Section */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-surface-container to-background p-6">
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-3">
+                            {isArenaActive ? (
+                                <Badge variant="live" className="animate-pulse">● {liveMatches} Live</Badge>
+                            ) : (
+                                <Badge variant="scheduled">Ready</Badge>
+                            )}
+                        </div>
+                        <h2 className="font-display text-3xl uppercase tracking-tight mb-1">
+                            {isArenaActive ? 'Matches Running' : activeTournaments > 0 ? 'Arena Active' : 'Welcome Back'}
+                        </h2>
+                        <p className="text-zinc-400 text-sm font-sans">
+                            {activeTournaments > 0
+                                ? `${activeTournaments} tournament${activeTournaments !== 1 ? 's' : ''} in progress`
+                                : 'Create your first tournament to get started.'}
+                        </p>
+                        {activeTournaments === 0 && (
+                            <Link href={route('tournaments.create')} className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-primary/20 text-primary text-sm font-display uppercase tracking-wide hover:bg-primary/30 transition-colors">
+                                <Trophy className="h-4 w-4" /> New Tournament
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
-                {/* Recent Activity List */}
-                <div className="space-y-4 pt-4">
-                    <div className="flex items-center justify-between px-1">
-                        <h2 className="text-sm font-display text-zinc-400 uppercase tracking-widest">Upcoming Matches</h2>
-                        <Link href={route('tournaments.index')}>
-                            <Button variant="ghost" size="sm" className="text-primary h-auto p-0">View All</Button>
-                        </Link>
-                    </div>
-                    
-                    {stats.upcomingMatches > 0 ? (
-                        [...Array(stats.upcomingMatches)].map((_, i) => (
-                            <Link key={i} href={route('tournaments.show', 'm1')} className="block">
-                                <Card className="hover:bg-surface-container-highest transition-colors group cursor-pointer active:scale-[0.99] transition-all">
-                                    <CardContent className="p-4 flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex -space-x-2">
-                                                <div className="h-8 w-8 rounded-full bg-zinc-800 border-2 border-surface flex items-center justify-center text-[10px]">??</div>
-                                                <div className="h-8 w-8 rounded-full bg-primary/20 border-2 border-surface flex items-center justify-center text-[10px] text-primary font-bold">??</div>
-                                            </div>
-                                            <div>
-                                                <div className="text-sm font-medium">Pending Matchup</div>
-                                                <div className="text-[10px] text-zinc-500 flex items-center gap-1">
-                                                    <Calendar className="h-3 w-3" /> To be scheduled
-                                                </div>
-                                            </div>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-3">
+                    {[
+                        { label: 'Tournaments', value: activeTournaments, color: 'text-primary', icon: Trophy },
+                        { label: 'Live Now', value: liveMatches, color: 'text-secondary', icon: Activity },
+                        { label: 'Players', value: totalPlayers, color: 'text-tertiary', icon: Users },
+                    ].map((stat) => {
+                        const Icon = stat.icon;
+                        return (
+                            <Card key={stat.label} className="text-center">
+                                <CardContent className="p-3">
+                                    <Icon className={cn('h-4 w-4 mx-auto mb-1', stat.color)} />
+                                    <div className={cn('text-2xl font-mono font-bold', stat.color)}>{stat.value}</div>
+                                    <div className="text-[9px] text-zinc-600 uppercase tracking-widest font-display">{stat.label}</div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
+                </div>
+
+                {/* Upcoming Matches */}
+                <div className="space-y-3">
+                    <h3 className="text-[10px] font-display text-zinc-500 uppercase tracking-[0.2em] px-1">Upcoming Matches</h3>
+
+                    {upcomingMatches.length > 0 ? (
+                        upcomingMatches.map((m) => (
+                            <Card key={m.id} className="hover:bg-surface-container-high transition-colors group">
+                                <CardContent className="p-4 flex items-center gap-3">
+                                    <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0', m.sport === 'pickleball' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary')}>
+                                        {m.sport === 'pickleball' ? <Zap className="h-5 w-5" /> : <Trophy className="h-5 w-5" />}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-display text-sm uppercase tracking-tight truncate">
+                                            {m.team_a} <span className="text-zinc-600 font-sans text-xs">vs</span> {m.team_b}
                                         </div>
-                                        <ArrowUpRight className="h-4 w-4 text-zinc-600 group-hover:text-primary transition-colors" />
-                                    </CardContent>
-                                </Card>
-                            </Link>
+                                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-zinc-600">
+                                            <span className="font-display uppercase">{m.tournament}</span>
+                                            {m.scheduled_at && (
+                                                <>
+                                                    <span>·</span>
+                                                    <span className="flex items-center gap-1 font-mono">
+                                                        <CalendarClock className="h-3 w-3" />
+                                                        {m.scheduled_at}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         ))
                     ) : (
-                        <div className="p-8 text-center border-2 border-dashed border-white/5 rounded-xl">
-                            <Calendar className="h-8 w-8 text-zinc-800 mx-auto mb-2 opacity-50" />
-                            <p className="text-xs text-zinc-600 uppercase tracking-widest">No Matches Scheduled</p>
+                        <div className="py-8 text-center">
+                            <CalendarClock className="h-10 w-10 text-zinc-800 mx-auto mb-3" />
+                            <p className="text-zinc-600 text-sm font-sans">No scheduled matches yet.</p>
+                            <Link href={route('tournaments.index')} className="text-primary text-xs mt-2 inline-block font-display uppercase tracking-widest hover:underline">
+                                View Tournaments →
+                            </Link>
                         </div>
                     )}
+                </div>
 
-
+                {/* Quick Actions */}
+                <div className="grid grid-cols-2 gap-3">
+                    <Link href={route('tournaments.create')} className="flex flex-col items-center justify-center h-20 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors">
+                        <Trophy className="h-5 w-5 text-primary mb-1" />
+                        <span className="text-[10px] font-display text-primary uppercase tracking-widest">New Tournament</span>
+                    </Link>
+                    <Link href={route('tournaments.index')} className="flex flex-col items-center justify-center h-20 rounded-xl bg-surface-container border border-white/5 hover:bg-surface-container-high transition-colors">
+                        <Activity className="h-5 w-5 text-zinc-400 mb-1" />
+                        <span className="text-[10px] font-display text-zinc-400 uppercase tracking-widest">All Arenas</span>
+                    </Link>
                 </div>
             </div>
         </AppLayout>

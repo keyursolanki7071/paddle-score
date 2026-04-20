@@ -14,7 +14,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
     const navItems = [
         { name: 'Dashboard', href: route('dashboard'), icon: Home },
         { name: 'Tournaments', href: route('tournaments.index'), icon: Trophy },
-        { name: 'Alerts', icon: Bell }, // Mocked for now
+        { name: 'Alerts', href: route('notifications.index'), icon: Bell },
         { name: 'Profile', href: route('profile'), icon: User },
     ];
 

@@ -35,10 +35,12 @@ export default function TournamentIndex({ tournaments }: TournamentIndexProps) {
                 </div>
 
                 {/* Floating Action Button Concept */}
-                <Button className="w-full h-12 gap-2" variant="tertiary">
-                    <Plus className="h-5 w-5" />
-                    New Tournament
-                </Button>
+                <Link href={route('tournaments.create')} className="block">
+                    <Button className="w-full h-12 gap-2" variant="tertiary">
+                        <Plus className="h-5 w-5" />
+                        New Tournament
+                    </Button>
+                </Link>
 
                 {/* Tournament List */}
                 <div className="space-y-4">
