@@ -12,11 +12,12 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
     const { url } = usePage();
 
     const navItems = [
-        { name: 'Dashboard', href: '/', icon: Home },
-        { name: 'Tournaments', href: '/tournaments', icon: Trophy },
+        { name: 'Dashboard', href: route('dashboard'), icon: Home },
+        { name: 'Tournaments', href: route('tournaments.index'), icon: Trophy },
         { name: 'Alerts', icon: Bell }, // Mocked for now
-        { name: 'Profile', href: '/profile', icon: User },
+        { name: 'Profile', href: route('profile'), icon: User },
     ];
+
 
     return (
         <div className="flex min-h-screen flex-col bg-background text-zinc-100 selection:bg-primary selection:text-black">

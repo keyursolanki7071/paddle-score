@@ -10,3 +10,8 @@ declare module '@inertiajs/core' {
         };
     }
 }
+
+declare global {
+    var route: any;
+}
+

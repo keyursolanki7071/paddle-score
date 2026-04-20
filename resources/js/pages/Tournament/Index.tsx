@@ -82,7 +82,4 @@ export default function TournamentIndex({ tournaments }: TournamentIndexProps) {
     );
 }
 
-// Global route helper mock if not available globally
-function route(name: string, id: string) {
-    return `/tournaments/${id}`;
-}
+

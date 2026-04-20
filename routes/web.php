@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Tournament\TournamentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -13,27 +14,9 @@ Route::get('/', function () {
     ]);
 })->name('dashboard');
 
-Route::get('/tournaments', function () {
-    return Inertia::render('Tournament/Index', [
-        'tournaments' => [
-            ['id' => '1', 'name' => 'Spring Pickleball Open', 'sport' => 'pickleball', 'status' => 'live', 'players' => 32],
-            ['id' => '2', 'name' => 'Sunset Padel Classic', 'sport' => 'padel', 'status' => 'scheduled', 'players' => 16],
-            ['id' => '3', 'name' => 'Elite Masters Invitational', 'sport' => 'pickleball', 'status' => 'completed', 'players' => 64],
-        ]
-    ]);
-})->name('tournaments.index');
+Route::get('/tournaments', [TournamentController::class, 'index'])->name('tournaments.index');
+Route::get('/tournaments/{id}', [TournamentController::class, 'show'])->name('tournaments.show');
 
-Route::get('/tournaments/{id}', function ($id) {
-    return Inertia::render('Tournament/Show', [
-        'tournament' => [
-            'id' => $id,
-            'name' => 'Spring Pickleball Open',
-            'sport' => 'pickleball',
-            'status' => 'live',
-            'description' => 'The premier spring tournament for high-performance players.',
-        ]
-    ]);
-})->name('tournaments.show');
 
 Route::get('/profile', function () {
     return Inertia::render('Profile/Index', [

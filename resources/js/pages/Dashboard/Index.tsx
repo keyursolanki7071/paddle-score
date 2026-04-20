@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Trophy, Users, Calendar, ArrowUpRight, Zap } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 interface DashboardProps {
+
     stats: {
         activeTournaments: number;
         upcomingMatches: number;
@@ -55,28 +57,41 @@ export default function Dashboard({ stats }: DashboardProps) {
                 <div className="space-y-4 pt-4">
                     <div className="flex items-center justify-between px-1">
                         <h2 className="text-sm font-display text-zinc-400 uppercase tracking-widest">Upcoming Matches</h2>
-                        <Button variant="ghost" size="sm" className="text-primary h-auto p-0">View All</Button>
+                        <Link href={route('tournaments.index')}>
+                            <Button variant="ghost" size="sm" className="text-primary h-auto p-0">View All</Button>
+                        </Link>
                     </div>
                     
-                    {[1, 2, 3].map((i) => (
-                        <Card key={i} className="hover:bg-surface-container-highest transition-colors group cursor-pointer">
-                            <CardContent className="p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex -space-x-2">
-                                        <div className="h-8 w-8 rounded-full bg-zinc-800 border-2 border-surface flex items-center justify-center text-[10px]">JD</div>
-                                        <div className="h-8 w-8 rounded-full bg-primary/20 border-2 border-surface flex items-center justify-center text-[10px] text-primary font-bold">AS</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-medium">Davis vs. Smith</div>
-                                        <div className="text-[10px] text-zinc-500 flex items-center gap-1">
-                                            <Calendar className="h-3 w-3" /> Tonight, 8:30 PM
+                    {stats.upcomingMatches > 0 ? (
+                        [...Array(stats.upcomingMatches)].map((_, i) => (
+                            <Link key={i} href={route('tournaments.show', 'm1')} className="block">
+                                <Card className="hover:bg-surface-container-highest transition-colors group cursor-pointer active:scale-[0.99] transition-all">
+                                    <CardContent className="p-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex -space-x-2">
+                                                <div className="h-8 w-8 rounded-full bg-zinc-800 border-2 border-surface flex items-center justify-center text-[10px]">??</div>
+                                                <div className="h-8 w-8 rounded-full bg-primary/20 border-2 border-surface flex items-center justify-center text-[10px] text-primary font-bold">??</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium">Pending Matchup</div>
+                                                <div className="text-[10px] text-zinc-500 flex items-center gap-1">
+                                                    <Calendar className="h-3 w-3" /> To be scheduled
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <ArrowUpRight className="h-4 w-4 text-zinc-600 group-hover:text-primary transition-colors" />
-                            </CardContent>
-                        </Card>
-                    ))}
+                                        <ArrowUpRight className="h-4 w-4 text-zinc-600 group-hover:text-primary transition-colors" />
+                                    </CardContent>
+                                </Card>
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="p-8 text-center border-2 border-dashed border-white/5 rounded-xl">
+                            <Calendar className="h-8 w-8 text-zinc-800 mx-auto mb-2 opacity-50" />
+                            <p className="text-xs text-zinc-600 uppercase tracking-widest">No Matches Scheduled</p>
+                        </div>
+                    )}
+
+
                 </div>
             </div>
         </AppLayout>

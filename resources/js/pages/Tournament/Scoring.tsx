@@ -5,8 +5,10 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { RotateCcw, ArrowLeftRight, Clock, Trophy, History } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Link } from '@inertiajs/react';
 
 interface ScoringProps {
+
     match: {
         id: string;
         teamA: string;
@@ -115,12 +117,14 @@ export default function TournamentScoring({ match }: ScoringProps) {
                         <span className="text-[8px] uppercase tracking-widest text-tertiary">Switch</span>
                     </button>
 
-                    <button className="flex flex-col items-center gap-1 group">
-                        <div className="h-10 w-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white/5">
-                            <Trophy className="h-5 w-5 text-zinc-500" />
-                        </div>
-                        <span className="text-[8px] uppercase tracking-widest text-zinc-500">Finish</span>
-                    </button>
+                    <Link href={route('tournaments.show', match.tournamentId)}>
+                        <button className="flex flex-col items-center gap-1 group">
+                            <div className="h-10 w-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white/5">
+                                <Trophy className="h-5 w-5 text-zinc-500" />
+                            </div>
+                            <span className="text-[8px] uppercase tracking-widest text-zinc-500">Finish</span>
+                        </button>
+                    </Link>
                 </div>
             </div>
         </AppLayout>
