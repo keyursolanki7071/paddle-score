@@ -3,8 +3,9 @@ import AppLayout from '@/layouts/AppLayout';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { usePage, Link, router } from '@inertiajs/react';
-import { Trophy, Users, Zap, Target, ChevronRight, Play, GitBranch } from 'lucide-react';
+import { Trophy, Users, Zap, Target, ChevronRight, Play, GitBranch, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Team { id: string; name: string; }
@@ -23,6 +24,7 @@ interface ShowProps {
 }
 
 export default function TournamentShow({ tournament, registrations, matchesByRound }: ShowProps) {
+    const [showDeleteModal, setShowDeleteModal] = React.useState(false);
     const isPickleball = tournament.sport === 'pickleball';
     const accent = isPickleball ? 'text-primary' : 'text-secondary';
     const accentBg = isPickleball ? 'bg-primary/10' : 'bg-secondary/10';
@@ -46,6 +48,14 @@ export default function TournamentShow({ tournament, registrations, matchesByRou
                             {isPickleball ? <Zap className={cn('h-5 w-5', accent)} /> : <Target className={cn('h-5 w-5', accent)} />}
                             <span className={cn('text-[10px] font-display uppercase tracking-[0.2em]', accent)}>{tournament.sport}</span>
                             <Badge variant={tournament.status as any} className="ml-auto">{tournament.status}</Badge>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-zinc-500 hover:text-red-500 transition-colors"
+                                onClick={() => setShowDeleteModal(true)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
                         </div>
 
                         {tournament.status === 'completed' && (
@@ -223,6 +233,20 @@ export default function TournamentShow({ tournament, registrations, matchesByRou
                     )}
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={showDeleteModal}
+                title="Delete Tournament?"
+                message={`Are you sure you want to delete "${tournament.name}"? This will permanently erase all matches, points, and standings.`}
+                confirmLabel="Delete Everything"
+                onConfirm={() => {
+                    router.delete(route('tournaments.destroy', tournament.id), {
+                        onSuccess: () => setShowDeleteModal(false)
+                    });
+                }}
+                onCancel={() => setShowDeleteModal(false)}
+                variant="danger"
+            />
         </AppLayout>
     );
 }

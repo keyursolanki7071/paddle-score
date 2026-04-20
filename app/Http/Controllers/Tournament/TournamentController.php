@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Tournament;
 
 use App\Actions\Tournament\AddTeamToTournamentAction;
-use App\Actions\Tournament\CreateTournamentAction;
+use App\Actions\Tournament\DeleteTournamentAction;
 use App\Actions\Tournament\GenerateBracketsAction;
 use App\Actions\Tournament\ListTournamentsAction;
 use App\Actions\Tournament\RemoveTeamFromTournamentAction;
@@ -154,6 +154,14 @@ class TournamentController extends Controller
 
         return redirect()->route('tournaments.show', $id)
             ->with('success', 'Brackets generated!');
+    }
+
+    public function destroy(string $id, DeleteTournamentAction $action): RedirectResponse
+    {
+        $action->handle($id);
+
+        return redirect()->route('tournaments.index')
+            ->with('success', 'Tournament deleted successfully.');
     }
 
     public function bracket(string $id): Response

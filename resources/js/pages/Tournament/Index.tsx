@@ -4,8 +4,9 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Trophy, Search, Plus, Filter, Users, ChevronRight, Zap, Target } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { Trophy, Search, Plus, Filter, Users, ChevronRight, Zap, Target, Trash2 } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
 
 interface Tournament {
     id: string;
@@ -20,6 +21,8 @@ interface TournamentIndexProps {
 }
 
 export default function TournamentIndex({ tournaments }: TournamentIndexProps) {
+    const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
     return (
         <AppLayout title="Tournaments">
             <div className="p-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -47,30 +50,46 @@ export default function TournamentIndex({ tournaments }: TournamentIndexProps) {
                     <h2 className="text-sm font-display text-zinc-500 uppercase tracking-widest px-1">Active Circuits</h2>
                     
                     {tournaments.map((t) => (
-                        <Link key={t.id} href={route('tournaments.show', t.id)} className="block">
-                            <Card className="hover:bg-surface-container-highest transition-all group overflow-hidden border-l-4 border-l-transparent active:scale-[0.98]">
-                                <CardContent className="p-4 flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-                                            t.sport === 'pickleball' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'
-                                        }`}>
-                                            {t.sport === 'pickleball' ? <Zap className="h-6 w-6" /> : <Target className="h-6 w-6" />}
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h3 className="font-display text-lg tracking-tight group-hover:text-white">{t.name}</h3>
-                                                <Badge variant={t.status as any}>{t.status}</Badge>
+                        <div key={t.id} className="block relative">
+                            <Link href={route('tournaments.show', t.id)} className="block">
+                                <Card className="hover:bg-surface-container-highest transition-all group overflow-hidden border-l-4 border-l-transparent active:scale-[0.98]">
+                                    <CardContent className="p-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
+                                                t.sport === 'pickleball' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'
+                                            }`}>
+                                                {t.sport === 'pickleball' ? <Zap className="h-6 w-6" /> : <Target className="h-6 w-6" />}
                                             </div>
-                                            <div className="flex items-center gap-3 text-xs text-zinc-500 font-sans">
-                                                <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {t.players} Players</span>
-                                                <span className="uppercase tracking-widest">{t.sport}</span>
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <h3 className="font-display text-lg tracking-tight group-hover:text-white">{t.name}</h3>
+                                                    <Badge variant={t.status as any}>{t.status}</Badge>
+                                                </div>
+                                                <div className="flex items-center gap-3 text-xs text-zinc-500 font-sans">
+                                                    <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {t.players} Players</span>
+                                                    <span className="uppercase tracking-widest">{t.sport}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <ChevronRight className="h-5 w-5 text-zinc-700 group-hover:text-primary transition-colors" />
-                                </CardContent>
-                            </Card>
-                        </Link>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-9 w-9 text-zinc-700 hover:text-red-500 hover:bg-red-500/10 transition-colors z-20"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setDeletingId(t.id);
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                            <ChevronRight className="h-5 w-5 text-zinc-700 group-hover:text-primary transition-colors" />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
+                        </div>
                     ))}
                 </div>
 
@@ -80,6 +99,22 @@ export default function TournamentIndex({ tournaments }: TournamentIndexProps) {
                     <p className="text-zinc-500 text-sm font-sans italic">Hosting a major? Start your bracket above.</p>
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={!!deletingId}
+                title="Delete Tournament?"
+                message="This will permanently delete the tournament and all match data. This action cannot be undone."
+                confirmLabel="Delete"
+                onConfirm={() => {
+                    if (deletingId) {
+                        router.delete(route('tournaments.destroy', deletingId), {
+                            onSuccess: () => setDeletingId(null)
+                        });
+                    }
+                }}
+                onCancel={() => setDeletingId(null)}
+                variant="danger"
+            />
         </AppLayout>
     );
 }

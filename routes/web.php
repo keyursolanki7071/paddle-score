@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/tournaments/{id}/teams', [TournamentController::class, 'removeTeam'])->name('tournaments.remove-team');
     Route::post('/tournaments/{id}/brackets', [TournamentController::class, 'generateBrackets'])->name('tournaments.generate-brackets');
     Route::get('/tournaments/{id}/bracket', [TournamentController::class, 'bracket'])->name('tournaments.bracket');
+    Route::delete('/tournaments/{id}', [TournamentController::class, 'destroy'])->name('tournaments.destroy');
 
     // Matches
     Route::post('/matches/{id}/start', [MatchController::class, 'start'])->name('matches.start');
