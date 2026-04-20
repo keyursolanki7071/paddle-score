@@ -21,33 +21,36 @@ final readonly class GetDashboardStatsAction
             ->whereIn('status', [TournamentStatus::DRAFT->value, TournamentStatus::ONGOING->value])
             ->count();
 
-        $liveMatches = TournamentMatch::whereHas('tournament', fn ($q) => $q->where('creator_id', $userId))
+        $liveMatchesCount = TournamentMatch::whereHas('tournament', fn ($q) => $q->where('creator_id', $userId))
             ->where('status', MatchStatus::LIVE->value)
             ->count();
 
-        $upcomingMatches = TournamentMatch::with(['teamA', 'teamB', 'tournament'])
+        $liveMatches = TournamentMatch::with(['teamA', 'teamB', 'tournament', 'sets'])
             ->whereHas('tournament', fn ($q) => $q->where('creator_id', $userId))
-            ->where('status', MatchStatus::SCHEDULED->value)
-            ->whereNotNull('scheduled_at')
-            ->orderBy('scheduled_at')
-            ->take(5)
+            ->where('status', MatchStatus::LIVE->value)
+            ->orderBy('updated_at', 'desc')
+            ->take(10)
             ->get()
             ->map(fn ($m) => [
                 'id'           => $m->id,
                 'team_a'       => $m->teamA->name,
                 'team_b'       => $m->teamB->name,
                 'tournament'   => $m->tournament->title,
-                'scheduled_at' => $m->scheduled_at?->toDateTimeString(),
                 'sport'        => $m->tournament->sport->value,
+                'score'        => [
+                    'team_a' => $m->sets->where('is_active', true)->first()?->team_a_score ?? 0,
+                    'team_b' => $m->sets->where('is_active', true)->first()?->team_b_score ?? 0,
+                    'is_pickleball' => $m->tournament->sport->value === 'pickleball'
+                ]
             ]);
 
         $totalPlayers = Player::count();
 
         return [
             'activeTournaments' => $activeTournaments,
-            'liveMatches'       => $liveMatches,
+            'liveMatchesCount'  => $liveMatchesCount,
             'totalPlayers'      => $totalPlayers,
-            'upcomingMatches'   => $upcomingMatches,
+            'liveMatches'       => $liveMatches,
         ];
     }
 }

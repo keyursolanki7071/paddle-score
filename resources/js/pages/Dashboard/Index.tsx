@@ -6,24 +6,28 @@ import { Badge } from '@/components/ui/Badge';
 import { Trophy, Zap, Lightning, Users, Activity, CalendarClock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface UpcomingMatch {
+interface LiveMatch {
     id: string;
     team_a: string;
     team_b: string;
     tournament: string;
-    scheduled_at: string | null;
     sport: string;
+    score: {
+        team_a: number;
+        team_b: number;
+        is_pickleball: boolean;
+    };
 }
 
 interface DashboardProps {
     activeTournaments: number;
-    liveMatches: number;
+    liveMatchesCount: number;
     totalPlayers: number;
-    upcomingMatches: UpcomingMatch[];
+    liveMatches: LiveMatch[];
 }
 
-export default function Dashboard({ activeTournaments, liveMatches, totalPlayers, upcomingMatches }: DashboardProps) {
-    const isArenaActive = liveMatches > 0;
+export default function Dashboard({ activeTournaments, liveMatchesCount, totalPlayers, liveMatches }: DashboardProps) {
+    const isArenaActive = liveMatchesCount > 0;
 
     return (
         <AppLayout title="Arena Dashboard">
@@ -35,7 +39,7 @@ export default function Dashboard({ activeTournaments, liveMatches, totalPlayers
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-3">
                             {isArenaActive ? (
-                                <Badge variant="live" className="animate-pulse">● {liveMatches} Live</Badge>
+                                <Badge variant="live" className="animate-pulse">● {liveMatchesCount} Live</Badge>
                             ) : (
                                 <Badge variant="scheduled">Ready</Badge>
                             )}
@@ -60,7 +64,7 @@ export default function Dashboard({ activeTournaments, liveMatches, totalPlayers
                 <div className="grid grid-cols-3 gap-3">
                     {[
                         { label: 'Tournaments', value: activeTournaments, color: 'text-primary', icon: Trophy },
-                        { label: 'Live Now', value: liveMatches, color: 'text-secondary', icon: Activity },
+                        { label: 'Live Now', value: liveMatchesCount, color: 'text-secondary', icon: Activity },
                         { label: 'Players', value: totalPlayers, color: 'text-tertiary', icon: Users },
                     ].map((stat) => {
                         const Icon = stat.icon;
@@ -76,43 +80,42 @@ export default function Dashboard({ activeTournaments, liveMatches, totalPlayers
                     })}
                 </div>
 
-                {/* Upcoming Matches */}
+                {/* Live Matches */}
                 <div className="space-y-3">
-                    <h3 className="text-[10px] font-display text-zinc-500 uppercase tracking-[0.2em] px-1">Upcoming Matches</h3>
+                    <h3 className="text-[10px] font-display text-zinc-500 uppercase tracking-[0.2em] px-1">Live Matches</h3>
 
-                    {upcomingMatches.length > 0 ? (
-                        upcomingMatches.map((m) => (
-                            <Card key={m.id} className="hover:bg-surface-container-high transition-colors group">
-                                <CardContent className="p-4 flex items-center gap-3">
-                                    <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0', m.sport === 'pickleball' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary')}>
-                                        {m.sport === 'pickleball' ? <Zap className="h-5 w-5" /> : <Trophy className="h-5 w-5" />}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="font-display text-sm uppercase tracking-tight truncate">
-                                            {m.team_a} <span className="text-zinc-600 font-sans text-xs">vs</span> {m.team_b}
+                    {liveMatches.length > 0 ? (
+                        liveMatches.map((m) => (
+                            <Link key={m.id} href={route('matches.score', m.id)} className="block">
+                                <Card className="hover:bg-surface-container-high transition-colors group">
+                                    <CardContent className="p-4 flex items-center gap-4">
+                                        <div className={cn('h-12 w-12 rounded-lg flex items-center justify-center shrink-0', m.sport === 'pickleball' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary')}>
+                                            {m.sport === 'pickleball' ? <Zap className="h-6 w-6" /> : <Trophy className="h-6 w-6" />}
                                         </div>
-                                        <div className="flex items-center gap-2 mt-0.5 text-[10px] text-zinc-600">
-                                            <span className="font-display uppercase">{m.tournament}</span>
-                                            {m.scheduled_at && (
-                                                <>
-                                                    <span>·</span>
-                                                    <span className="flex items-center gap-1 font-mono">
-                                                        <CalendarClock className="h-3 w-3" />
-                                                        {m.scheduled_at}
-                                                    </span>
-                                                </>
-                                            )}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="font-display text-sm uppercase tracking-tight truncate group-hover:text-white transition-colors">
+                                                {m.team_a} <span className="text-zinc-600 font-sans text-xs">vs</span> {m.team_b}
+                                            </div>
+                                            <div className="text-[10px] text-zinc-600 font-display uppercase mt-0.5">{m.tournament}</div>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        <div className="text-right">
+                                            <div className={cn('text-2xl font-mono font-bold leading-none', m.sport === 'pickleball' ? 'text-primary' : 'text-secondary')}>
+                                                {m.score.team_a}
+                                            </div>
+                                            <div className="text-2xl font-mono font-bold leading-none text-zinc-500">
+                                                {m.score.team_b}
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
                         ))
                     ) : (
-                        <div className="py-8 text-center">
-                            <CalendarClock className="h-10 w-10 text-zinc-800 mx-auto mb-3" />
-                            <p className="text-zinc-600 text-sm font-sans">No scheduled matches yet.</p>
-                            <Link href={route('tournaments.index')} className="text-primary text-xs mt-2 inline-block font-display uppercase tracking-widest hover:underline">
-                                View Tournaments →
+                        <div className="py-8 text-center bg-surface-container/30 rounded-2xl border border-dashed border-white/5">
+                            <Activity className="h-10 w-10 text-zinc-800 mx-auto mb-3" />
+                            <p className="text-zinc-600 text-sm font-sans italic">No matches live at the moment.</p>
+                            <Link href={route('tournaments.index')} className="text-primary text-xs mt-3 inline-block font-display uppercase tracking-widest hover:underline">
+                                Start a Match →
                             </Link>
                         </div>
                     )}
@@ -133,3 +136,5 @@ export default function Dashboard({ activeTournaments, liveMatches, totalPlayers
         </AppLayout>
     );
 }
+
+
